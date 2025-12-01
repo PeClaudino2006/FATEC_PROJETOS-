@@ -1,0 +1,60 @@
+-- 1) vw_media_temperatura_reservatorio
+
+
+CREATE OR REPLACE VIEW vw_media_temperatura_reservatorio AS
+SELECT r.id_reservatorio,
+       r.nome AS nome_reservatorio,
+       AVG(s.valor) AS media_temperatura
+FROM serie_temporal s
+JOIN parametro p ON s.id_parametro = p.id_parametro
+JOIN reservatorio r ON s.id_reservatorio = r.id_reservatorio
+WHERE p.nome_parametro = 'Temperatura'
+GROUP BY r.id_reservatorio, r.nome;
+
+
+-- 2) vw_eventos_reservatorio
+
+CREATE OR REPLACE VIEW vw_eventos_reservatorio AS
+SELECT r.nome AS nome_reservatorio,
+       p.nome_parametro,
+       s.valor,
+       s.data_hora
+FROM serie_temporal s
+JOIN parametro p ON s.id_parametro = p.id_parametro
+JOIN reservatorio r ON s.id_reservatorio = r.id_reservatorio
+ORDER BY r.nome, s.data_hora;
+
+-- 3) média da turbidez > 5
+
+CREATE OR REPLACE VIEW vw_reservatorio_turbidez_acima_5 AS
+SELECT r.id_reservatorio,
+       r.nome AS nome_reservatorio,
+       AVG(s.valor) AS media_turbidez
+FROM serie_temporal s
+JOIN parametro p ON s.id_parametro = p.id_parametro
+JOIN reservatorio r ON s.id_reservatorio = r.id_reservatorio
+WHERE p.nome_parametro = 'Turbidez'
+GROUP BY r.id_reservatorio, r.nome
+HAVING AVG(s.valor) > 5;
+
+
+-- 4) Consultar as views criadas
+
+SELECT * FROM vw_media_temperatura_reservatorio;
+
+SELECT * FROM vw_eventos_reservatorio;
+
+SELECT * FROM vw_reservatorio_turbidez_acima_5;
+
+-- 5) Remover uma view
+
+DROP VIEW vw_media_temperatura_reservatorio;
+
+DROP VIEW vw_eventos_reservatorio;
+
+DROP VIEW vw_reservatorio_turbidez_acima_5;
+
+
+
+
+
