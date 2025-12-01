@@ -1,0 +1,100 @@
+-- A) Biblioteca - Criar SP para atualizar o autor de um livro
+
+CREATE OR REPLACE PROCEDURE sp_atualiza_autor_livro(
+    p_id_livro INT,
+    p_id_autor INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE livro
+    SET id_autor = p_id_autor
+    WHERE id_livro = p_id_livro;
+
+    RAISE NOTICE 'Autor do livro % atualizado para o autor %', p_id_livro, p_id_autor;
+END;
+$$;
+
+-- A) Biblioteca -Criar SP para excluir livro pelo id
+
+CREATE OR REPLACE PROCEDURE sp_excluir_livro(p_id INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM livro
+    WHERE id_livro = p_id;
+
+    RAISE NOTICE 'Livro % excluído com sucesso', p_id;
+END;
+$$;
+
+-- B) PROJETO ABP - Criar SP para cadastrar reservatório
+
+CREATE OR REPLACE PROCEDURE sp_cadastrar_reservatorio(
+    p_nome TEXT,
+    p_lat NUMERIC,
+    p_lon NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO reservatorio (nome, latitude, longitude)
+    VALUES (p_nome, p_lat, p_lon);
+
+    RAISE NOTICE 'Reservatório % cadastrado com sucesso', p_nome;
+END;
+$$;
+
+-- B) PROJETO ABP - Criar SP para cadastrar parâmetro ambiental
+CREATE OR REPLACE PROCEDURE sp_cadastrar_parametro(
+    p_nome TEXT,
+    p_unidade TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO parametro_ambiental (nome, unidade)
+    VALUES (p_nome, p_unidade);
+
+    RAISE NOTICE 'Parâmetro % cadastrado', p_nome;
+END;
+$$;
+
+-- 5) PROJETO ABP - Criar SP para registrar medição
+CREATE OR REPLACE PROCEDURE sp_registrar_medicao(
+    p_id_reservatorio INT,
+    p_id_parametro INT,
+    p_valor NUMERIC,
+    p_data DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO medicao(id_reservatorio, id_parametro, valor, data_medicao)
+    VALUES (p_id_reservatorio, p_id_parametro, p_valor, p_data);
+
+    RAISE NOTICE 'Medição registrada com valor: %', p_valor;
+END;
+$$;
+
+-- C) Bônus Avançado - Validação de valor negativo
+
+CREATE OR REPLACE PROCEDURE sp_validar_e_registrar_medicao(
+    p_id_reservatorio INT,
+    p_id_parametro INT,
+    p_valor NUMERIC,
+    p_data DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_valor < 0 THEN
+        RAISE EXCEPTION 'Valor inválido! Não é permitido valor negativo (%).', p_valor;
+    END IF;
+
+    INSERT INTO medicao(id_reservatorio, id_parametro, valor, data_medicao)
+    VALUES (p_id_reservatorio, p_id_parametro, p_valor, p_data);
+
+    RAISE NOTICE 'Medição registrada com valor: %', p_valor;
+END;
+$$;
